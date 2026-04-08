@@ -79,7 +79,12 @@ Record all alerts in a structured format for comparison.
 
 ### Step 3 — Obtain Security Review Findings
 
-Check if a security review has already been performed in this session. If not:
+**Shortcut:** If a `findings-*/normalized.json` file exists (produced by the
+`findings-serializer` skill), load it directly — its `findings[]` array already matches
+the Step 4 schema (with two extra fields, `confidence` and `code_snippet`, which you may
+ignore or use). Skip the rest of Step 3 and Step 4 for that source.
+
+Otherwise, check if a security review has already been performed in this session. If not:
 
 1. Invoke the `security-review` skill to scan the codebase
 2. Wait for the scan to complete
