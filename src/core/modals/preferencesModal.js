@@ -4,6 +4,7 @@ import {
     addClass,
     addClassPm,
     setAttribute,
+    removeAttribute,
     removeClass,
     addEvent,
     appendChild,
@@ -137,9 +138,8 @@ export const createPreferencesModal = (api, createMainContainer) => {
         appendChild(dom._pmHeader, dom._pmTitle);
         appendChild(dom._pmHeader, dom._pmCloseBtn);
 
-        dom._pmDivTabindex = createNode(DIV_TAG);
+        dom._pmDivTabindex = dom._pmTitle;
         setAttribute(dom._pmDivTabindex, 'tabIndex', -1);
-        appendChild(dom._pm, dom._pmDivTabindex);
 
         appendChild(dom._pm, dom._pmHeader);
         appendChild(dom._pm, dom._pmBody);
@@ -315,7 +315,7 @@ export const createPreferencesModal = (api, createMainContainer) => {
                     if (!hasClass(section, 'is-expanded')) {
                         addClass(section, 'is-expanded');
                         setAttribute(btn, 'aria-expanded', 'true');
-                        setAttribute(accordion, ARIA_HIDDEN, 'false');
+                        removeAttribute(accordion, ARIA_HIDDEN);
                     } else {
                         removeClass(section, 'is-expanded');
                         setAttribute(btn, 'aria-expanded', 'false');

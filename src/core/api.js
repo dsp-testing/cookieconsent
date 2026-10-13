@@ -1,6 +1,7 @@
 import {
     createNode,
     setAttribute,
+    removeAttribute,
     appendChild,
     addClass,
     removeClass,
@@ -20,7 +21,6 @@ import {
     toggleDisableInteraction,
     fireEvent,
     getKeys,
-    focusAfterTransition,
     deepCopy
 } from '../utils/general';
 
@@ -44,7 +44,6 @@ import {
     getCurrentLanguageCode,
     handleRtlLanguage,
     loadTranslationData,
-    setCurrentLanguageCode,
     getAvailableLanguage
 } from '../utils/language';
 
@@ -200,18 +199,17 @@ export const show = (createModal) => {
     if (_state._disablePageInteraction)
         toggleDisableInteraction(true);
 
-    focusAfterTransition(_dom._cm, 1);
-
-    addClass(_dom._htmlDom, TOGGLE_CONSENT_MODAL_CLASS);
-    setAttribute(_dom._cm, ARIA_HIDDEN, 'false');
-
+    addClass(_dom._rootEl, TOGGLE_CONSENT_MODAL_CLASS);
+    removeAttribute(_dom._cm, ARIA_HIDDEN);
     /**
      * Set focus to consentModal and enable transition
      */
     setTimeout(() => {
-        addClass(_dom._cmContainer, 'cc--anim');
-        focus(globalObj._dom._cmDivTabindex);
+        addClass(globalObj._dom._cmContainer, 'cc--anim');
     }, 100);
+    setTimeout(() => {
+        focus(globalObj._dom._cmDivTabindex);
+    }, 200);
 
     debug('CookieConsent [TOGGLE]: show consentModal');
 
@@ -237,7 +235,7 @@ export const hide = () => {
      */
     focus(_dom._focusSpan, true);
 
-    removeClass(_dom._htmlDom, TOGGLE_CONSENT_MODAL_CLASS);
+    removeClass(_dom._rootEl, TOGGLE_CONSENT_MODAL_CLASS);
     setAttribute(_dom._cm, ARIA_HIDDEN, 'true');
 
     /**
@@ -245,7 +243,7 @@ export const hide = () => {
      */
     focus(_state._lastFocusedElemBeforeModal);
     _state._lastFocusedElemBeforeModal = null;
-    
+
     /**
      * Remove transition class after it executed
      */
@@ -277,10 +275,8 @@ export const showPreferences = () => {
         state._lastFocusedModalElement = getActiveElement();
     }
 
-    focusAfterTransition(globalObj._dom._pm, 2);
-
-    addClass(globalObj._dom._htmlDom, TOGGLE_PREFERENCES_MODAL_CLASS);
-    setAttribute(globalObj._dom._pm, ARIA_HIDDEN, 'false');
+    addClass(globalObj._dom._rootEl, TOGGLE_PREFERENCES_MODAL_CLASS);
+    removeAttribute(globalObj._dom._pm, ARIA_HIDDEN);
 
     /**
      * Set focus to preferencesModal
@@ -343,7 +339,7 @@ export const hidePreferences = () => {
      */
     focus(globalObj._dom._pmFocusSpan, true);
 
-    removeClass(globalObj._dom._htmlDom, TOGGLE_PREFERENCES_MODAL_CLASS);
+    removeClass(globalObj._dom._rootEl, TOGGLE_PREFERENCES_MODAL_CLASS);
     setAttribute(globalObj._dom._pm, ARIA_HIDDEN, 'true');
 
     /**
@@ -394,8 +390,6 @@ export const setLanguage = async (newLanguageCode, forceUpdate) => {
 
         if (!loaded)
             return false;
-
-        setCurrentLanguageCode(newLanguageCode);
 
         if (state._consentModalExists)
             createConsentModal(miniAPI, createMainContainer);
@@ -693,7 +687,7 @@ export const run = async (userConfig) => {
  */
 export const reset = (deleteCookie) => {
     //{{START: GUI}}
-    const { _ccMain, _htmlDom } = globalObj._dom;
+    const { _ccMain } = globalObj._dom;
     //{{END: GUI}}
 
     const { name, path, domain, useLocalStorage } = globalObj._config.cookie;
@@ -720,7 +714,8 @@ export const reset = (deleteCookie) => {
     /**
      * Remove any remaining classes
      */
-    _htmlDom && _htmlDom.classList.remove(
+    const parentEl = globalObj._dom._rootEl;
+    parentEl && parentEl.classList.remove(
         TOGGLE_DISABLE_INTERACTION_CLASS,
         TOGGLE_PREFERENCES_MODAL_CLASS,
         TOGGLE_CONSENT_MODAL_CLASS
